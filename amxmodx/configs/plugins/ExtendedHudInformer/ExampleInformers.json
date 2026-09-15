@@ -5,7 +5,8 @@
         "Color": [0, 200, 100],
         "X": -1.0,
         "Y": 0.05,
-        "UpdateTime": 1.0
+        "UpdateTime": 1.0,
+        "Sync": true
     },
     {
         "Key": "player-stats",
@@ -13,7 +14,9 @@
         "Color": [255, 200, 0],
         "X": 0.02,
         "Y": 0.15,
-        "UpdateTime": 0.5
+        "UpdateTime": 0.5,
+        "Sync": false,
+        "Channel": 2
     },
     {
         "Key": "server-info",
@@ -21,6 +24,7 @@
         "Color": [200, 200, 200],
         "X": 0.02,
         "Y": 0.85,
-        "UpdateTime": 5.0
+        "UpdateTime": 5.0,
+        "DHUD": true
     }
 ]

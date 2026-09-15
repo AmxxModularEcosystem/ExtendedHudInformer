@@ -20,6 +20,9 @@ enum _:S_Informer {
     Float:Informer_FadeInTime,
     Float:Informer_FadeOutTime,
     Informer_Channel,
+    bool:Informer_Sync,
+    bool:Informer_DHUD,
+    Informer_SyncObj,
     bool:Informer_Enabled,
 }
 
@@ -117,7 +120,14 @@ Informer_LoadFromJson(const JSON:informersJson) {
     }
 }
 
-T_ExtendedHudInformer:Informer_Construct(const informerObject[S_Informer]) {
+T_ExtendedHudInformer:Informer_Construct(informerObject[S_Informer]) {
+    // -1 — sync-объект не создан (вывод через dHUD или классический канал)
+    if (!informerObject[Informer_DHUD] && informerObject[Informer_Sync]) {
+        informerObject[Informer_SyncObj] = CreateHudSyncObj();
+    } else {
+        informerObject[Informer_SyncObj] = -1;
+    }
+
     new T_ExtendedHudInformer:informer = T_ExtendedHudInformer:ArrayPushArray(Informers, informerObject);
     TrieSetCell(InformersMap, informerObject[Informer_Key], informer);
     TrieSetCell(InformersMap, fmt("#%d", informer), informer);
@@ -200,7 +210,9 @@ static Informer_StartTask(const T_ExtendedHudInformer:informer) {
     Informer_Show(informer);
 }
 
-@Informer_Task(const T_ExtendedHudInformer:informer) {
+@Informer_Task(const taskId) {
+    new T_ExtendedHudInformer:informer = T_ExtendedHudInformer:(taskId - 1);
+    
     Informer_Show(informer - 1);
 }
 
@@ -212,32 +224,49 @@ Informer_Show(const T_ExtendedHudInformer:informer, const playerIndex = 0) {
     new informerObject[S_Informer];
     Informer_Get(informer, informerObject);
 
-    set_hudmessage(
-        informerObject[Informer_Color][0],
-        informerObject[Informer_Color][1],
-        informerObject[Informer_Color][2],
-        informerObject[Informer_X],
-        informerObject[Informer_Y],
-        .holdtime = informerObject[Informer_HoldTime],
-        .fadeintime = informerObject[Informer_FadeInTime],
-        .fadeouttime = informerObject[Informer_FadeOutTime],
-        .channel = informerObject[Informer_Channel]
-    );
+    new bool:useDhud = informerObject[Informer_DHUD];
+
+    // Канал задаётся всегда: классический show_hudmessage его использует,
+    // а ShowSyncHudMsg (ветка Sync) игнорирует — отдельная ветка не нужна.
+    if (useDhud) {
+        set_dhudmessage(
+            informerObject[Informer_Color][0],
+            informerObject[Informer_Color][1],
+            informerObject[Informer_Color][2],
+            informerObject[Informer_X],
+            informerObject[Informer_Y],
+            .holdtime = informerObject[Informer_HoldTime],
+            .fadeintime = informerObject[Informer_FadeInTime],
+            .fadeouttime = informerObject[Informer_FadeOutTime]
+        );
+    } else {
+        set_hudmessage(
+            informerObject[Informer_Color][0],
+            informerObject[Informer_Color][1],
+            informerObject[Informer_Color][2],
+            informerObject[Informer_X],
+            informerObject[Informer_Y],
+            .holdtime = informerObject[Informer_HoldTime],
+            .fadeintime = informerObject[Informer_FadeInTime],
+            .fadeouttime = informerObject[Informer_FadeOutTime],
+            .channel = informerObject[Informer_Channel]
+        );
+    }
 
     if (playerIndex > 0) {
         if (is_user_connected(playerIndex)) {
-            Informer_ShowToPlayer(playerIndex, informerObject[Informer_Template]);
+            Informer_ShowToPlayer(playerIndex, informerObject);
         }
     } else {
         for (new i = 1; i <= MaxClients; ++i) {
             if (is_user_connected(i)) {
-                Informer_ShowToPlayer(i, informerObject[Informer_Template]);
+                Informer_ShowToPlayer(i, informerObject);
             }
         }
     }
 }
 
-static Informer_ShowToPlayer(const playerIndex, const T_PHTemplate:tmpl) {
+static Informer_ShowToPlayer(const playerIndex, const informerObject[S_Informer]) {
     static T_PHGroup:playerPHGroup = Invalid_PHGroup;
     if (playerPHGroup == Invalid_PHGroup) {
         playerPHGroup = PCPH_FindGroup(DEFAULT_PH_PLAYER_GROUP_PREFIX);
@@ -248,10 +277,16 @@ static Informer_ShowToPlayer(const playerIndex, const T_PHTemplate:tmpl) {
     if (playerPHGroup != Invalid_PHGroup) {
         PCPH_Group_PushIntContext(playerPHGroup, playerIndex);
     }
-    PCPH_FormatTemplate(tmpl, text, charsmax(text));
+    PCPH_FormatTemplate(informerObject[Informer_Template], text, charsmax(text));
     if (playerPHGroup != Invalid_PHGroup) {
         PCPH_Group_PopContext(playerPHGroup);
     }
 
-    show_hudmessage(playerIndex, text);
+    if (informerObject[Informer_DHUD]) {
+        show_dhudmessage(playerIndex, text);
+    } else if (informerObject[Informer_Sync] && informerObject[Informer_SyncObj] != -1) {
+        ShowSyncHudMsg(playerIndex, informerObject[Informer_SyncObj], "%s", text);
+    } else {
+        show_hudmessage(playerIndex, text);
+    }
 }

@@ -70,6 +70,8 @@ bool:@DefaultObjects_ParamType_Informer_OnRead(const JSON:valueJson) {
     informerObject[Informer_FadeOutTime] = PCSingle_ObjFloat(valueJson, "FadeOutTime", 0.0);
     informerObject[Informer_Channel] = PCSingle_ObjInt(valueJson, "Channel", -1);
     informerObject[Informer_Enabled] = PCSingle_ObjBool(valueJson, "Enabled", true);
+    informerObject[Informer_Sync] = PCSingle_ObjBool(valueJson, "Sync", true);
+    informerObject[Informer_DHUD] = PCSingle_ObjBool(valueJson, "DHUD", false);
 
     if (informerObject[Informer_UpdateTime] <= 0.0) {
         PCJson_LogForFile(valueJson, "WARNING", "Informer '%s' 'UpdateTime' must be positive, using 1.0.", informerObject[Informer_Key]);
@@ -86,6 +88,10 @@ bool:@DefaultObjects_ParamType_Informer_OnRead(const JSON:valueJson) {
     if (informerObject[Informer_Channel] < -1 || informerObject[Informer_Channel] > 4) {
         PCJson_LogForFile(valueJson, "WARNING", "Informer '%s' 'Channel' must be in -1..4, using -1 (auto).", informerObject[Informer_Key]);
         informerObject[Informer_Channel] = -1;
+    }
+
+    if (informerObject[Informer_DHUD] && informerObject[Informer_Channel] != -1) {
+        PCJson_LogForFile(valueJson, "WARNING", "Informer '%s': 'Channel' is ignored when 'DHUD' is enabled.", informerObject[Informer_Key]);
     }
 
     return ParamsController_SetCell(Informer_Construct(informerObject));

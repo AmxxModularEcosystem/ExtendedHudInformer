@@ -10,7 +10,7 @@
  *
  * Используется в качестве значения PluginVersion при регистрации плагина.
  */
-#define EXHI_VERSION "0.0.1"
+#define EXHI_VERSION "0.0.2"
 
 /**
  * Название библиотеки, регистрируемое через register_library().
@@ -37,6 +37,14 @@
  * сегментов скомпилированного шаблона ParamsController.
  */
 #define EXHI_HUD_TEXT_MAX_LEN 512
+
+/**
+ * Максимальная длина текста dHUD-сообщения (show_dhudmessage).
+ *
+ * Ограничение движка: show_dhudmessage автоматически обрезает
+ * текст длиннее этого лимита.
+ */
+#define EXHI_DHUD_TEXT_MAX_LEN 128
 
 /**
  * Относительный путь к папке конфигов плагина.
