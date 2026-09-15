@@ -15,8 +15,7 @@
         "X": 0.02,
         "Y": 0.15,
         "UpdateTime": 0.5,
-        "Sync": false,
-        "Channel": 2
+        "Sync": false
     },
     {
         "Key": "server-info",

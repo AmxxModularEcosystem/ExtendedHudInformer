@@ -213,7 +213,7 @@ static Informer_StartTask(const T_ExtendedHudInformer:informer) {
 @Informer_Task(const taskId) {
     new T_ExtendedHudInformer:informer = T_ExtendedHudInformer:(taskId - 1);
     
-    Informer_Show(informer - 1);
+    Informer_Show(informer);
 }
 
 Informer_Show(const T_ExtendedHudInformer:informer, const playerIndex = 0) {
