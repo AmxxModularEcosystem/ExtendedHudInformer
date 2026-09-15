@@ -1,0 +1,26 @@
+[
+    {
+        "Key": "welcome",
+        "Text": "Welcome to {server-name}, {p:name}!\nMap: {map}\nPlayers: {players-count}/{max-players-count}\nTime: {time}",
+        "Color": [0, 200, 100],
+        "X": -1.0,
+        "Y": 0.05,
+        "UpdateTime": 1.0
+    },
+    {
+        "Key": "player-stats",
+        "Text": "Health: {p:health} | Armor: {p:armor}\nFrags: {p:frags} | Ping: {p:ping}\nConnected: {p:connect-time}",
+        "Color": [255, 200, 0],
+        "X": 0.02,
+        "Y": 0.15,
+        "UpdateTime": 0.5
+    },
+    {
+        "Key": "server-info",
+        "Text": "Server uptime: {uptime}\nNext map: {nextmap}",
+        "Color": [200, 200, 200],
+        "X": 0.02,
+        "Y": 0.85,
+        "UpdateTime": 5.0
+    }
+]
